@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 from pdf_processor import process_pdf
-from vector_store import VectorStore
+from vector_store import PostgresVectorStore
 from llm_adapter import LLMAdapter
 from config import UPLOAD_FOLDER
 import markdown
@@ -10,7 +10,7 @@ import markdown
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-vector_store = VectorStore()
+vector_store = PostgresVectorStore()
 llm_adapter = LLMAdapter()
 
 

@@ -1,36 +1,61 @@
-import faiss
+import psycopg2
+from psycopg2 import sql
+from pgvector.psycopg2 import register_vector
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from config import EMBEDDING_MODEL
+from config import EMBEDDING_MODEL, PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
 
-
-class VectorStore:
-
+class PostgresVectorStore:
     def __init__(self):
-        self.embeddings = []
-        self.documents = []
         self.model = SentenceTransformer(EMBEDDING_MODEL)
-        self.index = None
+        self.conn = psycopg2.connect(
+            host=PGHOST,
+            port=PGPORT,
+            dbname=PGDATABASE,
+            user=PGUSER,
+            password=PGPASSWORD
+        )
+        self._create_extension()
+        self._create_table()
+
+    def _create_extension(self):
+        with self.conn.cursor() as cur:
+            cur.execute("CREATE EXTENSION IF NOT EXISTS vector")
+            self.conn.commit()
+
+    def _create_table(self):
+        with self.conn.cursor() as cur:
+            register_vector(cur)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS documents (
+                    id SERIAL PRIMARY KEY,
+                    content TEXT,
+                    embedding vector(384)
+                )
+            """)
+            cur.execute("CREATE INDEX IF NOT EXISTS embedding_idx ON documents USING ivfflat (embedding vector_cosine_ops)")
+            self.conn.commit()
 
     def add_documents(self, documents):
-        new_embeddings = self.model.encode(documents)
-        self.embeddings.extend(new_embeddings)
-        self.documents.extend(documents)
-        self._update_index()
-
-    def _update_index(self):
-        if self.index is None:
-            self.index = faiss.IndexFlatL2(
-                self.model.get_sentence_embedding_dimension())
-        self.index = faiss.IndexFlatL2(self.embeddings[0].shape[0])
-        self.index.add(
-            np.array(self.embeddings, dtype=np.float32).reshape(
-                -1, self.model.get_sentence_embedding_dimension()))
+        embeddings = self.model.encode(documents)
+        with self.conn.cursor() as cur:
+            for doc, emb in zip(documents, embeddings):
+                cur.execute(
+                    "INSERT INTO documents (content, embedding) VALUES (%s, %s)",
+                    (doc, emb.tolist())
+                )
+        self.conn.commit()
 
     def search(self, query, k=3):
-        query_embedding = self.model.encode([query])
-        if self.index is None or len(self.embeddings) == 0:
-            return []
-        distances, indices = self.index.search(
-            np.array(query_embedding, dtype=np.float32).reshape(1, -1), k)
-        return [self.documents[i] for i in indices[0]]
+        query_embedding = self.model.encode([query])[0]
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "SELECT content FROM documents ORDER BY embedding <-> %s::vector LIMIT %s",
+                (query_embedding.tolist(), k)
+            )
+            results = cur.fetchall()
+        return [result[0] for result in results]
+
+    def __del__(self):
+        if hasattr(self, 'conn'):
+            self.conn.close()

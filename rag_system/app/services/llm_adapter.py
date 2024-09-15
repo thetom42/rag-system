@@ -1,5 +1,5 @@
-from config import LLM_PROVIDER, OPENAI_API_KEY
-from openai_chat_completion import send_openai_request
+from ...config import LLM_PROVIDER, OPENAI_API_KEY
+from ..utils.openai_chat_completion import send_openai_request
 
 class LLMAdapter:
     def __init__(self):

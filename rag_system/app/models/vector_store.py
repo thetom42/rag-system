@@ -3,7 +3,7 @@ from psycopg2 import sql
 from pgvector.psycopg2 import register_vector
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from config import EMBEDDING_MODEL, PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
+from rag_system.config import EMBEDDING_MODEL, PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
 
 class PostgresVectorStore:
     def __init__(self):

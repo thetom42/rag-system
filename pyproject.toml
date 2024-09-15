@@ -17,6 +17,7 @@ flake8 = "^7.1.1"
 pyright = "^1.1.380"
 psycopg2-binary = "^2.9.9"
 pgvector = "^0.3.3"
+nltk = "^3.9.1"
 
 
 [build-system]

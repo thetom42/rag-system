@@ -105,7 +105,9 @@ def init_routes(app):
             logging.info(f"Calling vector_store.get_suggestions with query: {query}")
             suggestions = vector_store.get_suggestions(query)
             logging.info(f"Generated suggestions: {suggestions}")
-            return jsonify({'suggestions': suggestions}), 200
+            response = jsonify({'suggestions': suggestions})
+            logging.info(f"Sending response: {response.get_data(as_text=True)}")
+            return response, 200
         except Exception as e:
             logging.error(f"Error fetching suggestions: {str(e)}")
             return jsonify({'error': 'An error occurred while fetching suggestions.'}), 500

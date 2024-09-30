@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            console.log('Sending request to /suggestions');
+            console.log('Sending request to /suggestions with query:', query);
             const response = await fetch('/suggestions', {
                 method: 'POST',
                 headers: {
@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ query: query })
             });
-            const data = await response.json();
             console.log('Received response:', response);
+            const data = await response.json();
             console.log('Received data:', data);
             if (response.ok) {
                 console.log('Suggestions received:', data.suggestions);
@@ -96,6 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function displaySuggestions(suggestions) {
         console.log('Displaying suggestions:', suggestions);
         suggestionsContainer.innerHTML = '';
+        if (suggestions.length === 0) {
+            console.log('No suggestions to display');
+            return;
+        }
         suggestions.forEach(suggestion => {
             const div = document.createElement('div');
             div.classList.add('suggestion');

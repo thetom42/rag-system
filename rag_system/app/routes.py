@@ -8,6 +8,7 @@ from .models.vector_store import PostgresVectorStore
 from .services.llm_adapter import LLMAdapter
 from ..config import UPLOAD_FOLDER
 import markdown
+import re
 
 vector_store = PostgresVectorStore()
 llm_adapter = LLMAdapter()
@@ -88,10 +89,26 @@ def init_routes(app):
             # Convert the response from Markdown to HTML
             html_response = markdown.markdown(response)
 
-            return jsonify({'answer': html_response, 'context': similar_chunks}), 200
+            # Highlight the query terms in the context
+            highlighted_chunks = highlight_text(similar_chunks, query)
+
+            return jsonify({'answer': html_response, 'context': highlighted_chunks}), 200
         except Exception as e:
             logging.error(f"Error during search: {str(e)}")
             return jsonify({'error': 'An error occurred during the search process.'}), 500
+
+    @app.route('/suggestions', methods=['POST'])
+    def get_suggestions():
+        query = request.json.get('query')
+        if not query or len(query) < 2:
+            return jsonify({'suggestions': []}), 200
+
+        try:
+            suggestions = vector_store.get_suggestions(query)
+            return jsonify({'suggestions': suggestions}), 200
+        except Exception as e:
+            logging.error(f"Error fetching suggestions: {str(e)}")
+            return jsonify({'error': 'An error occurred while fetching suggestions.'}), 500
 
     @app.route('/documents', methods=['GET'])
     def get_documents():
@@ -116,3 +133,16 @@ def init_routes(app):
                 return jsonify({'error': f'An error occurred while deleting the document: {str(e)}'}), 500
         else:
             return jsonify({'error': 'Document not found'}), 404
+
+def highlight_text(chunks, query):
+    query_terms = re.findall(r'\w+', query.lower())
+    highlighted_chunks = []
+
+    for chunk in chunks:
+        highlighted_chunk = chunk
+        for term in query_terms:
+            pattern = re.compile(re.escape(term), re.IGNORECASE)
+            highlighted_chunk = pattern.sub(f'<mark>{term}</mark>', highlighted_chunk)
+        highlighted_chunks.append(highlighted_chunk)
+
+    return highlighted_chunks

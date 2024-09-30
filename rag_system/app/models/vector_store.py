@@ -27,8 +27,7 @@ class PostgresVectorStore:
         with self.conn.cursor() as cur:
             register_vector(cur)
             cur.execute('''
-                DROP TABLE IF EXISTS documents;
-                CREATE TABLE documents (
+                CREATE TABLE IF NOT EXISTS documents (
                     id SERIAL PRIMARY KEY,
                     document_id TEXT,
                     content TEXT,
@@ -57,6 +56,22 @@ class PostgresVectorStore:
             )
             results = cur.fetchall()
         return [result[0] for result in results]
+
+    def get_suggestions(self, query, limit=5):
+        query_embedding = self.model.encode([query])[0]
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT DISTINCT
+                    substring(content from '(?i)\\y\\w*' || %s || '\\w*\\y') as suggestion
+                FROM documents
+                WHERE embedding <-> %s::vector < 0.5
+                LIMIT %s
+                """,
+                (query, query_embedding.tolist(), limit)
+            )
+            results = cur.fetchall()
+        return [result[0] for result in results if result[0]]
 
     def remove_document(self, document_id):
         with self.conn.cursor() as cur:

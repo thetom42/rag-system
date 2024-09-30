@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const uploadForm = document.getElementById('upload-form');
     const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const suggestionsContainer = document.getElementById('suggestions-container');
     const resultsDiv = document.getElementById('results');
     const documentList = document.getElementById('document-list');
 
@@ -53,10 +55,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    let debounceTimer;
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(getSuggestions, 300);
+    });
+
+    async function getSuggestions() {
+        const query = searchInput.value;
+        if (query.length < 2) {
+            suggestionsContainer.innerHTML = '';
+            return;
+        }
+
+        try {
+            const response = await fetch('/suggestions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                displaySuggestions(data.suggestions);
+            } else {
+                throw new Error(data.error || 'An error occurred while fetching suggestions.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    function displaySuggestions(suggestions) {
+        suggestionsContainer.innerHTML = '';
+        suggestions.forEach(suggestion => {
+            const div = document.createElement('div');
+            div.classList.add('suggestion');
+            div.textContent = suggestion;
+            div.addEventListener('click', () => {
+                searchInput.value = suggestion;
+                suggestionsContainer.innerHTML = '';
+                searchForm.dispatchEvent(new Event('submit'));
+            });
+            suggestionsContainer.appendChild(div);
+        });
+    }
+
     searchForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         toggleLoading('search-button', true);
-        const query = document.getElementById('search-input').value;
+        const query = searchInput.value;
+        suggestionsContainer.innerHTML = '';
         
         try {
             const response = await fetch('/search', {
@@ -68,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
             if (response.ok) {
-                displaySearchResults(data);
+                displaySearchResults(data, query);
             } else {
                 throw new Error(data.error || 'An error occurred while searching.');
             }
@@ -102,7 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    function displaySearchResults(data) {
+    function displaySearchResults(data, query) {
+        const highlightText = (text, query) => {
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<mark>$1</mark>');
+        };
+
         resultsDiv.innerHTML = `
             <h3>Search Results</h3>
             <div class="answer">${data.answer}</div>
@@ -110,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${data.context.map((chunk, index) => `
                 <div class="context-chunk">
                     <h5>Context ${index + 1}</h5>
-                    <pre>${chunk}</pre>
+                    <pre>${highlightText(chunk, query)}</pre>
                 </div>
             `).join('')}
         `;

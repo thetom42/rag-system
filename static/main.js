@@ -63,12 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function getSuggestions() {
         const query = searchInput.value;
+        console.log('Getting suggestions for query:', query);
         if (query.length < 2) {
             suggestionsContainer.innerHTML = '';
             return;
         }
 
         try {
+            console.log('Sending request to /suggestions');
             const response = await fetch('/suggestions', {
                 method: 'POST',
                 headers: {
@@ -77,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ query: query })
             });
             const data = await response.json();
+            console.log('Received suggestions:', data);
             if (response.ok) {
                 displaySuggestions(data.suggestions);
             } else {
@@ -88,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displaySuggestions(suggestions) {
+        console.log('Displaying suggestions:', suggestions);
         suggestionsContainer.innerHTML = '';
         suggestions.forEach(suggestion => {
             const div = document.createElement('div');
@@ -213,6 +217,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Initial document list update
     updateDocumentList();
 });

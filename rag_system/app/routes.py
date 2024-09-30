@@ -13,11 +13,9 @@ import re
 vector_store = PostgresVectorStore()
 llm_adapter = LLMAdapter()
 
-# Increased chunk size and overlap for better context retention
 CHUNK_SIZE = 2000
 CHUNK_OVERLAP = 400
 
-# In-memory storage for document metadata
 documents = {}
 
 def init_routes(app):
@@ -86,10 +84,8 @@ def init_routes(app):
             )
             response = llm_adapter.generate_response(prompt)
 
-            # Convert the response from Markdown to HTML
             html_response = markdown.markdown(response)
 
-            # Highlight the query terms in the context
             highlighted_chunks = highlight_text(similar_chunks, query)
 
             return jsonify({'answer': html_response, 'context': highlighted_chunks}), 200
@@ -100,11 +96,14 @@ def init_routes(app):
     @app.route('/suggestions', methods=['POST'])
     def get_suggestions():
         query = request.json.get('query')
+        logging.info(f"Received suggestion request for query: {query}")
         if not query or len(query) < 2:
+            logging.info("Query too short, returning empty suggestions")
             return jsonify({'suggestions': []}), 200
 
         try:
             suggestions = vector_store.get_suggestions(query)
+            logging.info(f"Generated suggestions: {suggestions}")
             return jsonify({'suggestions': suggestions}), 200
         except Exception as e:
             logging.error(f"Error fetching suggestions: {str(e)}")
@@ -123,9 +122,7 @@ def init_routes(app):
         if document_id in documents:
             try:
                 document = documents.pop(document_id)
-                # Remove the file from the file system
                 os.remove(document['path'])
-                # Remove the document's chunks from the vector store
                 vector_store.remove_document(document_id)
                 return '', 204
             except Exception as e:

@@ -102,6 +102,7 @@ def init_routes(app):
             return jsonify({'suggestions': []}), 200
 
         try:
+            logging.info(f"Calling vector_store.get_suggestions with query: {query}")
             suggestions = vector_store.get_suggestions(query)
             logging.info(f"Generated suggestions: {suggestions}")
             return jsonify({'suggestions': suggestions}), 200

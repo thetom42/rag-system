@@ -79,10 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ query: query })
             });
             const data = await response.json();
-            console.log('Received suggestions:', data);
+            console.log('Received response:', response);
+            console.log('Received data:', data);
             if (response.ok) {
+                console.log('Suggestions received:', data.suggestions);
                 displaySuggestions(data.suggestions);
             } else {
+                console.error('Error in response:', data.error);
                 throw new Error(data.error || 'An error occurred while fetching suggestions.');
             }
         } catch (error) {

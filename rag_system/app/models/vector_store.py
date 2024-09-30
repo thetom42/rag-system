@@ -4,6 +4,7 @@ from pgvector.psycopg2 import register_vector
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from rag_system.config import EMBEDDING_MODEL, PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
+import logging
 
 class PostgresVectorStore:
     def __init__(self):
@@ -59,19 +60,24 @@ class PostgresVectorStore:
 
     def get_suggestions(self, query, limit=5):
         query_embedding = self.model.encode([query])[0]
+        logging.info(f"Encoded query: {query}")
+        logging.info(f"Query embedding shape: {query_embedding.shape}")
         with self.conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT DISTINCT
-                    substring(content from '(?i)\\y\\w*' || %s || '\\w*\\y') as suggestion
-                FROM documents
-                WHERE embedding <-> %s::vector < 0.5
-                LIMIT %s
-                """,
-                (query, query_embedding.tolist(), limit)
-            )
+            sql_query = """
+            SELECT DISTINCT
+                substring(content from '(?i)\\y\\w*' || %s || '\\w*\\y') as suggestion
+            FROM documents
+            WHERE embedding <-> %s::vector < 0.5
+            LIMIT %s
+            """
+            logging.info(f"Executing SQL query: {sql_query}")
+            logging.info(f"Query parameters: {query}, {query_embedding.tolist()}, {limit}")
+            cur.execute(sql_query, (query, query_embedding.tolist(), limit))
             results = cur.fetchall()
-        return [result[0] for result in results if result[0]]
+        logging.info(f"Raw results from database: {results}")
+        suggestions = [result[0] for result in results if result[0]]
+        logging.info(f"Filtered suggestions: {suggestions}")
+        return suggestions
 
     def remove_document(self, document_id):
         with self.conn.cursor() as cur:

@@ -26,23 +26,25 @@ class PostgresVectorStore:
     def _create_table(self):
         with self.conn.cursor() as cur:
             register_vector(cur)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS documents (
+            cur.execute('''
+                DROP TABLE IF EXISTS documents;
+                CREATE TABLE documents (
                     id SERIAL PRIMARY KEY,
+                    document_id TEXT,
                     content TEXT,
                     embedding vector(384)
                 )
-            """)
+            ''')
             cur.execute("CREATE INDEX IF NOT EXISTS embedding_idx ON documents USING ivfflat (embedding vector_cosine_ops)")
             self.conn.commit()
 
-    def add_documents(self, documents):
-        embeddings = self.model.encode(documents)
+    def add_documents(self, documents, document_id=None):
+        embeddings = self.model.encode([doc.split('\n\n')[-1] for doc in documents])  # Encode only the content part
         with self.conn.cursor() as cur:
             for doc, emb in zip(documents, embeddings):
                 cur.execute(
-                    "INSERT INTO documents (content, embedding) VALUES (%s, %s)",
-                    (doc, emb.tolist())
+                    "INSERT INTO documents (document_id, content, embedding) VALUES (%s, %s, %s)",
+                    (document_id, doc, emb.tolist())
                 )
         self.conn.commit()
 
@@ -55,6 +57,11 @@ class PostgresVectorStore:
             )
             results = cur.fetchall()
         return [result[0] for result in results]
+
+    def remove_document(self, document_id):
+        with self.conn.cursor() as cur:
+            cur.execute("DELETE FROM documents WHERE document_id = %s", (document_id,))
+        self.conn.commit()
 
     def __del__(self):
         if hasattr(self, 'conn'):

@@ -11,15 +11,21 @@
         <h1>RAG System</h1>
         
         <form id="upload-form">
-            <h2>Upload PDF</h2>
-            <input type="file" name="file" accept=".pdf" required>
-            <button type="submit">Upload</button>
+            <h2>Upload PDF(s)</h2>
+            <input type="file" name="files" accept=".pdf" multiple required>
+            <ul id="selected-files"></ul>
+            <button type="submit" id="upload-button">Upload</button>
         </form>
+
+        <div id="uploaded-documents">
+            <h2>Uploaded Documents</h2>
+            <ul id="document-list"></ul>
+        </div>
 
         <form id="search-form">
             <h2>Search</h2>
             <input type="text" id="search-input" placeholder="Enter your query" required>
-            <button type="submit">Search</button>
+            <button type="submit" id="search-button">Search</button>
         </form>
 
         <div id="results"></div>

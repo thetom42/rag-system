@@ -39,11 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
             const data = await response.json();
-            displayUploadResults(data);
-            updateDocumentList();
+            if (response.ok) {
+                displayUploadResults(data);
+                updateDocumentList();
+            } else {
+                throw new Error(data.error || 'An error occurred while uploading the file(s).');
+            }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while uploading the file(s).');
+            alert(error.message);
         } finally {
             toggleLoading('upload-button', false);
         }
@@ -63,10 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ query: query })
             });
             const data = await response.json();
-            displaySearchResults(data);
+            if (response.ok) {
+                displaySearchResults(data);
+            } else {
+                throw new Error(data.error || 'An error occurred while searching.');
+            }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while searching.');
+            alert(error.message);
         } finally {
             toggleLoading('search-button', false);
         }
@@ -111,32 +119,42 @@ document.addEventListener('DOMContentLoaded', () => {
     async function updateDocumentList() {
         try {
             const response = await fetch('/documents');
-            const documents = await response.json();
-            documentList.innerHTML = documents.map(doc => `
-                <li>
-                    ${doc.filename}
-                    <button onclick="deleteDocument('${doc.id}')">Delete</button>
-                </li>
-            `).join('');
+            if (response.ok) {
+                const documents = await response.json();
+                documentList.innerHTML = documents.map(doc => `
+                    <li>
+                        <strong>${doc.filename}</strong>
+                        <ul>
+                            <li>Pages: ${doc.num_pages}</li>
+                            <li>Chunks: ${doc.stats.num_chunks}</li>
+                        </ul>
+                        <button onclick="deleteDocument('${doc.id}')">Delete</button>
+                    </li>
+                `).join('');
+            } else {
+                throw new Error('Failed to fetch the document list.');
+            }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while fetching the document list.');
+            alert(error.message);
         }
     }
 
     window.deleteDocument = async (documentId) => {
-        try {
-            const response = await fetch(`/documents/${documentId}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                updateDocumentList();
-            } else {
-                alert('Failed to delete the document.');
+        if (confirm('Are you sure you want to delete this document?')) {
+            try {
+                const response = await fetch(`/documents/${documentId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    updateDocumentList();
+                } else {
+                    throw new Error('Failed to delete the document.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while deleting the document.');
         }
     };
 

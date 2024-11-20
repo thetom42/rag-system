@@ -21,12 +21,20 @@ h1 {
 
 #upload-form, #search-form {
     margin-bottom: 20px;
+    position: relative;
+    width: 100%;
 }
 
 input[type="file"], input[type="text"] {
-    width: 100%;
+    width: calc(100% - 20px);  /* Subtract padding */
     padding: 10px;
     margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+#suggestions-container {
+    width: calc(100% - 20px);
+    box-sizing: border-box;
 }
 
 button {

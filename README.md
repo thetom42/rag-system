@@ -101,6 +101,60 @@ These interactions demonstrate the iterative development process and how issues 
   - Visual loading indicators
   - Document management interface
 
+## Interface Overview
+
+```
++------------------------------------------+
+|               RAG System                  |
++------------------------------------------+
+|                                          |
+| +--------------------------------------+ |
+| |          Upload PDF(s)               | |
+| | +----------------------------------+ | |
+| | |     Choose Files     | Upload    | | |
+| | +----------------------------------+ | |
+| +--------------------------------------+ |
+|                                          |
+| +--------------------------------------+ |
+| |        Uploaded Documents            | |
+| | +----------------------------------+ | |
+| | | • Document1.pdf     [Delete]     | | |
+| | | • Document2.pdf     [Delete]     | | |
+| | +----------------------------------+ | |
+| +--------------------------------------+ |
+|                                          |
+| +--------------------------------------+ |
+| |              Search                  | |
+| | +----------------------------------+ | |
+| | | Enter your query...              | | |
+| | +----------------------------------+ | |
+| | | • Suggested search 1             | | |
+| | | • Suggested search 2             | | |
+| | +----------------------------------+ | |
+| |            [Search Button]           | |
+| +--------------------------------------+ |
+|                                          |
+| +--------------------------------------+ |
+| |           Search Results             | |
+| | +----------------------------------+ | |
+| | | Answer:                          | | |
+| | | Generated response based on...    | | |
+| | |                                  | | |
+| | | Context:                         | | |
+| | | Text with <highlighted> search   | | |
+| | | terms from the document...       | | |
+| | +----------------------------------+ | |
+| +--------------------------------------+ |
+|                                          |
++------------------------------------------+
+```
+
+The interface is organized into four main sections:
+1. **Upload Section**: Allows users to select and upload multiple PDF files
+2. **Document List**: Displays uploaded documents with options to delete them
+3. **Search Interface**: Features a search box with real-time suggestions as you type
+4. **Results Area**: Shows the generated answer and relevant context with highlighted search terms
+
 ## Installation
 
 1. Clone the repository

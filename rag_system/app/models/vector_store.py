@@ -63,19 +63,32 @@ class PostgresVectorStore:
         logging.info(f"Encoded query: {query}")
         logging.info(f"Query embedding shape: {query_embedding.shape}")
         with self.conn.cursor() as cur:
-            sql_query = """
-            SELECT DISTINCT
-                substring(content from '(?i)\\y\\w*' || %s || '\\w*\\y') as suggestion
-            FROM documents
-            WHERE embedding <-> %s::vector < 0.5
-            LIMIT %s
-            """
+            sql_query = '''
+                WITH relevant_docs AS (
+                    SELECT content
+                    FROM documents
+                    WHERE embedding <-> %s::vector < 0.5
+                ),
+                words AS (
+                    SELECT DISTINCT unnest(regexp_split_to_array(lower(content), '\s+')) as word
+                    FROM relevant_docs
+                    WHERE length(word) >= 3
+                )
+                SELECT word as suggestion
+                FROM words
+                WHERE word LIKE %s
+                LIMIT %s
+            '''
             logging.info(f"Executing SQL query: {sql_query}")
-            logging.info(f"Query parameters: {query}, {query_embedding.tolist()}, {limit}")
-            cur.execute(sql_query, (query, query_embedding.tolist(), limit))
+            logging.info(f"Query parameters: {query.lower()}, {query_embedding.tolist()}, {limit}")
+            cur.execute(sql_query, (
+                query_embedding.tolist(),
+                f'%{query.lower()}%',
+                limit
+            ))
             results = cur.fetchall()
         logging.info(f"Raw results from database: {results}")
-        suggestions = [result[0] for result in results if result[0]]
+        suggestions = [result[0] for result in results if result[0] and len(result[0]) >= 3]
         logging.info(f"Filtered suggestions: {suggestions}")
         return suggestions
 

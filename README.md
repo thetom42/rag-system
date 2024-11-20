@@ -103,51 +103,46 @@ These interactions demonstrate the iterative development process and how issues 
 
 ## Interface Overview
 
-```
-+------------------------------------------+
-|               RAG System                  |
-+------------------------------------------+
-|                                          |
-| +--------------------------------------+ |
-| |          Upload PDF(s)               | |
-| | +----------------------------------+ | |
-| | |     Choose Files     | Upload    | | |
-| | +----------------------------------+ | |
-| +--------------------------------------+ |
-|                                          |
-| +--------------------------------------+ |
-| |        Uploaded Documents            | |
-| | +----------------------------------+ | |
-| | | • Document1.pdf     [Delete]     | | |
-| | | • Document2.pdf     [Delete]     | | |
-| | +----------------------------------+ | |
-| +--------------------------------------+ |
-|                                          |
-| +--------------------------------------+ |
-| |              Search                  | |
-| | +----------------------------------+ | |
-| | | Enter your query...              | | |
-| | +----------------------------------+ | |
-| | | • Suggested search 1             | | |
-| | | • Suggested search 2             | | |
-| | +----------------------------------+ | |
-| |            [Search Button]           | |
-| +--------------------------------------+ |
-|                                          |
-| +--------------------------------------+ |
-| |           Search Results             | |
-| | +----------------------------------+ | |
-| | | Answer:                          | | |
-| | | Generated response based on...    | | |
-| | |                                  | | |
-| | | Context:                         | | |
-| | | Text with <highlighted> search   | | |
-| | | terms from the document...       | | |
-| | +----------------------------------+ | |
-| +--------------------------------------+ |
-|                                          |
-+------------------------------------------+
-```
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="800" height="600" fill="#f4f4f4"/>
+    
+    <!-- Main Container -->
+    <rect x="50" y="20" width="700" height="560" fill="white" rx="5"/>
+    
+    <!-- Title -->
+    <text x="400" y="50" text-anchor="middle" font-family="Arial" font-size="24" fill="#333">RAG System</text>
+    
+    <!-- Upload Section -->
+    <rect x="70" y="80" width="660" height="100" fill="white" stroke="#ddd"/>
+    <text x="90" y="105" font-family="Arial" font-size="18" fill="#333">Upload PDF(s)</text>
+    <rect x="90" y="120" width="500" height="40" fill="white" stroke="#ccc" rx="4"/>
+    <text x="110" y="145" font-family="Arial" font-size="14" fill="#666">Choose Files</text>
+    <rect x="600" y="120" width="110" height="40" fill="#4CAF50" rx="4"/>
+    <text x="655" y="145" text-anchor="middle" font-family="Arial" font-size="14" fill="white">Upload</text>
+    
+    <!-- Document List -->
+    <rect x="70" y="200" width="660" height="100" fill="white" stroke="#ddd"/>
+    <text x="90" y="225" font-family="Arial" font-size="18" fill="#333">Uploaded Documents</text>
+    <text x="90" y="255" font-family="Arial" font-size="14">• Document1.pdf</text>
+    <rect x="600" y="240" width="110" height="30" fill="#4CAF50" rx="4"/>
+    <text x="655" y="260" text-anchor="middle" font-family="Arial" font-size="14" fill="white">Delete</text>
+    
+    <!-- Search Section -->
+    <rect x="70" y="320" width="660" height="100" fill="white" stroke="#ddd"/>
+    <text x="90" y="345" font-family="Arial" font-size="18" fill="#333">Search</text>
+    <rect x="90" y="360" width="540" height="40" fill="white" stroke="#ccc" rx="4"/>
+    <text x="110" y="385" font-family="Arial" font-size="14" fill="#666">Enter your query...</text>
+    <rect x="640" y="360" width="70" height="40" fill="#4CAF50" rx="4"/>
+    <text x="675" y="385" text-anchor="middle" font-family="Arial" font-size="14" fill="white">Search</text>
+    
+    <!-- Search Results -->
+    <rect x="70" y="440" width="660" height="120" fill="white" stroke="#ddd"/>
+    <text x="90" y="465" font-family="Arial" font-size="18" fill="#333">Search Results</text>
+    <text x="90" y="495" font-family="Arial" font-size="16">Answer:</text>
+    <text x="90" y="520" font-family="Arial" font-size="14">Generated response based on the context...</text>
+    <text x="90" y="545" font-family="Arial" font-size="14">Context with <tspan fill="black" style="background: yellow">highlighted</tspan> search terms</text>
+</svg>
 
 The interface is organized into four main sections:
 1. **Upload Section**: Allows users to select and upload multiple PDF files

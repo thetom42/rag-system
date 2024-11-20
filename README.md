@@ -2,6 +2,81 @@
 
 A simplified RAG (Retrieval-Augmented Generation) system using Flask and Python, featuring in-memory vector storage, configurable LLM providers, and real-time search capabilities.
 
+## Project Context
+
+This project serves as a demonstration of using the Replit AI Agent for full-stack application development. It showcases how AI-assisted development can efficiently create a functional RAG system with various features and integrations.
+
+### Development Journey
+
+The project was developed iteratively following these key steps:
+
+1. **Initial Prototype**
+   - Set up Flask web application
+   - Implemented basic PDF upload and text extraction
+   - Created initial vector storage mechanism
+   - Established basic search functionality
+
+2. **PostgreSQL/pgvector Integration**
+   - Integrated persistent vector storage
+   - Implemented database schema for documents and embeddings
+   - Added vector similarity search capabilities
+
+3. **Advanced Chunking Strategies**
+   - Developed semantic-aware text chunking
+   - Implemented overlap between chunks
+   - Added metadata retention for context
+
+4. **Multiple Document Support**
+   - Added multi-file upload capability
+   - Implemented document management system
+   - Created document listing and deletion features
+
+5. **Real-time Frontend Features**
+   - Added search suggestions with debouncing
+   - Implemented result highlighting
+   - Created loading indicators
+   - Enhanced user interface responsiveness
+
+6. **Documentation**
+   - Created comprehensive documentation
+   - Added usage instructions
+   - Documented API and configurations
+
+### Development Process Highlights
+
+The development process was highly interactive and iterative:
+
+1. **Feature Implementation**
+   - Features were developed incrementally with continuous feedback
+   - Each component was tested individually before integration
+   - Improvements were made based on user feedback
+
+2. **Testing Process**
+   - Upload functionality was tested with various PDF formats
+   - Search capabilities were verified with different query types
+   - Real-time features were tested for responsiveness
+   - Database operations were validated for correctness
+
+3. **Issue Resolution**
+   - Database schema issues were identified and fixed during vector storage integration
+   - Template loading errors were resolved through proper path configuration
+   - PDF processing errors were handled with robust error management
+   - Search performance was optimized through index improvements
+
+### Sample Development Interaction
+
+Here's a brief example of how the AI agent and user collaborated:
+
+```
+User: We need to implement the search functionality with vector similarity.
+Agent: I'll add the vector search implementation using pgvector. First, let's create the database schema.
+[Implements database schema and vector search function]
+User: The search results aren't including document metadata.
+Agent: I'll modify the chunks to include metadata for better context retention.
+[Updates chunking strategy to include metadata]
+User: Perfect! Now the search results show the source document and context.
+```
+
 ## Features
 
 - **Document Processing**

@@ -103,7 +103,7 @@ These interactions demonstrate the iterative development process and how issues 
 
 ## Interface Overview
 
-[Screenshot of the interface will be added here.]
+![RAG System Interface](screenshot.png)
 
 The interface is organized into four main sections:
 1. **Upload Section**: Allows users to select and upload multiple PDF files

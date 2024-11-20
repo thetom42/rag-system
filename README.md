@@ -63,19 +63,24 @@ The development process was highly interactive and iterative:
    - PDF processing errors were handled with robust error management
    - Search performance was optimized through index improvements
 
-### Sample Development Interaction
+### Sample Development Interactions
 
-Here's a brief example of how the AI agent and user collaborated:
+Here are some real examples of how the AI agent and user collaborated during development:
 
+1. **Database Schema Fix**
 ```
-User: We need to implement the search functionality with vector similarity.
-Agent: I'll add the vector search implementation using pgvector. First, let's create the database schema.
-[Implements database schema and vector search function]
-User: The search results aren't including document metadata.
-Agent: I'll modify the chunks to include metadata for better context retention.
-[Updates chunking strategy to include metadata]
-User: Perfect! Now the search results show the source document and context.
+User: ERROR:root:Error processing file Mixture-of-Experts.pdf: column "document_id" of relation "documents" does not exist
+Agent: The error indicates an issue with the database schema. I'll update the _create_table method to include the document_id column...
+User: Confirmed it works
 ```
+
+2. **Search Suggestions Implementation**
+```
+User: The suggestions array remains empty as I type
+Agent: Let's investigate by adding more detailed logging in the suggestions functionality...
+```
+
+These interactions demonstrate the iterative development process and how issues were identified and resolved through collaboration between the AI agent and user.
 
 ## Features
 
